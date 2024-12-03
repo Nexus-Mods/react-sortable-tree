@@ -1,10 +1,10 @@
-import React, { Children, cloneElement, Component } from 'react';
-import PropTypes from 'prop-types';
-import { List, AutoSizer } from 'react-virtualized';
-import isEqual from 'lodash.isequal';
 import withScrolling, { createScrollingComponent, createVerticalStrength, createHorizontalStrength } from 'frontend-collective-react-dnd-scrollzone';
+import isEqual from 'lodash.isequal';
+import PropTypes from 'prop-types';
+import React, { Component, Children, cloneElement } from 'react';
 import { DragSource, DropTarget, DndContext, DndProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { List, AutoSizer } from 'react-virtualized';
 import { findDOMNode } from 'react-dom';
 
 function _typeof(obj) {
@@ -369,228 +369,6 @@ function polyfill(Component) {
 
   return Component;
 }
-
-// very simple className utility for creating a classname string...
-// Falsy arguments are ignored:
-//
-// const active = true
-// const className = classnames(
-//    "class1",
-//    !active && "class2",
-//    active && "class3"
-// ); // returns -> class1 class3";
-//
-function classnames() {
-  for (var _len = arguments.length, classes = new Array(_len), _key = 0; _key < _len; _key++) {
-    classes[_key] = arguments[_key];
-  }
-
-  // Use Boolean constructor as a filter callback
-  // Allows for loose type truthy/falsey checks
-  // Boolean("") === false;
-  // Boolean(false) === false;
-  // Boolean(undefined) === false;
-  // Boolean(null) === false;
-  // Boolean(0) === false;
-  // Boolean("classname") === true;
-  return classes.filter(Boolean).join(' ');
-}
-
-var TreeNode =
-/*#__PURE__*/
-function (_Component) {
-  _inherits(TreeNode, _Component);
-
-  function TreeNode() {
-    _classCallCheck(this, TreeNode);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(TreeNode).apply(this, arguments));
-  }
-
-  _createClass(TreeNode, [{
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          children = _this$props.children,
-          listIndex = _this$props.listIndex,
-          swapFrom = _this$props.swapFrom,
-          swapLength = _this$props.swapLength,
-          swapDepth = _this$props.swapDepth,
-          scaffoldBlockPxWidth = _this$props.scaffoldBlockPxWidth,
-          lowerSiblingCounts = _this$props.lowerSiblingCounts,
-          connectDropTarget = _this$props.connectDropTarget,
-          isOver = _this$props.isOver,
-          draggedNode = _this$props.draggedNode,
-          canDrop = _this$props.canDrop,
-          treeIndex = _this$props.treeIndex,
-          treeId = _this$props.treeId,
-          getPrevRow = _this$props.getPrevRow,
-          node = _this$props.node,
-          path = _this$props.path,
-          rowDirection = _this$props.rowDirection,
-          otherProps = _objectWithoutProperties(_this$props, ["children", "listIndex", "swapFrom", "swapLength", "swapDepth", "scaffoldBlockPxWidth", "lowerSiblingCounts", "connectDropTarget", "isOver", "draggedNode", "canDrop", "treeIndex", "treeId", "getPrevRow", "node", "path", "rowDirection"]);
-
-      var rowDirectionClass = rowDirection === 'rtl' ? 'rst__rtl' : null; // Construct the scaffold representing the structure of the tree
-
-      var scaffoldBlockCount = lowerSiblingCounts.length;
-      var scaffold = [];
-      lowerSiblingCounts.forEach(function (lowerSiblingCount, i) {
-        var lineClass = '';
-
-        if (lowerSiblingCount > 0) {
-          // At this level in the tree, the nodes had sibling nodes further down
-          if (listIndex === 0) {
-            // Top-left corner of the tree
-            // +-----+
-            // |     |
-            // |  +--+
-            // |  |  |
-            // +--+--+
-            lineClass = 'rst__lineHalfHorizontalRight rst__lineHalfVerticalBottom';
-          } else if (i === scaffoldBlockCount - 1) {
-            // Last scaffold block in the row, right before the row content
-            // +--+--+
-            // |  |  |
-            // |  +--+
-            // |  |  |
-            // +--+--+
-            lineClass = 'rst__lineHalfHorizontalRight rst__lineFullVertical';
-          } else {
-            // Simply connecting the line extending down to the next sibling on this level
-            // +--+--+
-            // |  |  |
-            // |  |  |
-            // |  |  |
-            // +--+--+
-            lineClass = 'rst__lineFullVertical';
-          }
-        } else if (listIndex === 0) {
-          // Top-left corner of the tree, but has no siblings
-          // +-----+
-          // |     |
-          // |  +--+
-          // |     |
-          // +-----+
-          lineClass = 'rst__lineHalfHorizontalRight';
-        } else if (i === scaffoldBlockCount - 1) {
-          // The last or only node in this level of the tree
-          // +--+--+
-          // |  |  |
-          // |  +--+
-          // |     |
-          // +-----+
-          lineClass = 'rst__lineHalfVerticalTop rst__lineHalfHorizontalRight';
-        }
-
-        scaffold.push(React.createElement("div", {
-          key: "pre_".concat(1 + i),
-          style: {
-            width: scaffoldBlockPxWidth
-          },
-          className: classnames('rst__lineBlock', lineClass, rowDirectionClass)
-        }));
-
-        if (treeIndex !== listIndex && i === swapDepth) {
-          // This row has been shifted, and is at the depth of
-          // the line pointing to the new destination
-          var highlightLineClass = '';
-
-          if (listIndex === swapFrom + swapLength - 1) {
-            // This block is on the bottom (target) line
-            // This block points at the target block (where the row will go when released)
-            highlightLineClass = 'rst__highlightBottomLeftCorner';
-          } else if (treeIndex === swapFrom) {
-            // This block is on the top (source) line
-            highlightLineClass = 'rst__highlightTopLeftCorner';
-          } else {
-            // This block is between the bottom and top
-            highlightLineClass = 'rst__highlightLineVertical';
-          }
-
-          var _style;
-
-          if (rowDirection === 'rtl') {
-            _style = {
-              width: scaffoldBlockPxWidth,
-              right: scaffoldBlockPxWidth * i
-            };
-          } else {
-            // Default ltr
-            _style = {
-              width: scaffoldBlockPxWidth,
-              left: scaffoldBlockPxWidth * i
-            };
-          }
-
-          scaffold.push(React.createElement("div", {
-            // eslint-disable-next-line react/no-array-index-key
-            key: i,
-            style: _style,
-            className: classnames('rst__absoluteLineBlock', highlightLineClass, rowDirectionClass)
-          }));
-        }
-      });
-      var style;
-
-      if (rowDirection === 'rtl') {
-        style = {
-          right: scaffoldBlockPxWidth * scaffoldBlockCount
-        };
-      } else {
-        // Default ltr
-        style = {
-          left: scaffoldBlockPxWidth * scaffoldBlockCount
-        };
-      }
-
-      return connectDropTarget(React.createElement("div", _extends({}, otherProps, {
-        className: classnames('rst__node', rowDirectionClass)
-      }), scaffold, React.createElement("div", {
-        className: "rst__nodeContent",
-        style: style
-      }, Children.map(children, function (child) {
-        return cloneElement(child, {
-          isOver: isOver,
-          canDrop: canDrop,
-          draggedNode: draggedNode
-        });
-      }))));
-    }
-  }]);
-
-  return TreeNode;
-}(Component);
-
-TreeNode.defaultProps = {
-  swapFrom: null,
-  swapDepth: null,
-  swapLength: null,
-  canDrop: false,
-  draggedNode: null,
-  rowDirection: 'ltr'
-};
-TreeNode.propTypes = {
-  treeIndex: PropTypes.number.isRequired,
-  treeId: PropTypes.string.isRequired,
-  swapFrom: PropTypes.number,
-  swapDepth: PropTypes.number,
-  swapLength: PropTypes.number,
-  scaffoldBlockPxWidth: PropTypes.number.isRequired,
-  lowerSiblingCounts: PropTypes.arrayOf(PropTypes.number).isRequired,
-  listIndex: PropTypes.number.isRequired,
-  children: PropTypes.node.isRequired,
-  // Drop target
-  connectDropTarget: PropTypes.func.isRequired,
-  isOver: PropTypes.bool.isRequired,
-  canDrop: PropTypes.bool,
-  draggedNode: PropTypes.shape({}),
-  // used in dndManager
-  getPrevRow: PropTypes.func.isRequired,
-  node: PropTypes.shape({}).isRequired,
-  path: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])).isRequired,
-  // rtl support
-  rowDirection: PropTypes.string
-};
 
 /**
  * Performs a depth-first traversal over all of the node descendants,
@@ -997,7 +775,7 @@ function toggleExpandedForAll(_ref9) {
     treeData: treeData,
     callback: function callback(_ref10) {
       var node = _ref10.node;
-      return _objectSpread2({}, node, {
+      return _objectSpread2(_objectSpread2({}, node), {}, {
         expanded: expanded
       });
     },
@@ -1070,14 +848,14 @@ function changeNodeAtPath(_ref12) {
         if (_result) {
           // If the result was truthy (in this case, an object),
           //  pass it to the next level of recursion up
-          return _objectSpread2({}, node, {
+          return _objectSpread2(_objectSpread2({}, node), {}, {
             children: [].concat(_toConsumableArray(node.children.slice(0, i)), [_result], _toConsumableArray(node.children.slice(i + 1)))
           });
         } // If the result was falsy (returned from the newNode function), then
         //  delete the node from the array.
 
 
-        return _objectSpread2({}, node, {
+        return _objectSpread2(_objectSpread2({}, node), {}, {
           children: [].concat(_toConsumableArray(node.children.slice(0, i)), _toConsumableArray(node.children.slice(i + 1)))
         });
       }
@@ -1281,7 +1059,7 @@ function addNodeUnderParent(_ref19) {
 
       if (!parentNode.children) {
         insertedTreeIndex = treeIndex + 1;
-        return _objectSpread2({}, parentNode, {
+        return _objectSpread2(_objectSpread2({}, parentNode), {}, {
           children: [newNode]
         });
       }
@@ -1301,7 +1079,7 @@ function addNodeUnderParent(_ref19) {
 
       insertedTreeIndex = nextTreeIndex;
       var children = addAsFirstChild ? [newNode].concat(_toConsumableArray(parentNode.children)) : [].concat(_toConsumableArray(parentNode.children), [newNode]);
-      return _objectSpread2({}, parentNode, {
+      return _objectSpread2(_objectSpread2({}, parentNode), {}, {
         children: children
       });
     }
@@ -1349,7 +1127,7 @@ function addNodeAtDepthAndIndex(_ref21) {
         expanded: true
       } : {};
 
-      var _nextNode = _objectSpread2({}, node, {}, extraNodeProps, {
+      var _nextNode = _objectSpread2(_objectSpread2(_objectSpread2({}, node), extraNodeProps), {}, {
         children: node.children ? [newNode].concat(_toConsumableArray(node.children)) : [newNode]
       });
 
@@ -1414,7 +1192,7 @@ function addNodeAtDepthAndIndex(_ref21) {
     } // Insert the newNode at the insertIndex
 
 
-    var _nextNode2 = _objectSpread2({}, node, {
+    var _nextNode2 = _objectSpread2(_objectSpread2({}, node), {}, {
       children: [].concat(_toConsumableArray(node.children.slice(0, insertIndex)), [newNode], _toConsumableArray(node.children.slice(insertIndex)))
     }); // Return node with successful insert result
 
@@ -1475,7 +1253,7 @@ function addNodeAtDepthAndIndex(_ref21) {
     });
   }
 
-  var nextNode = _objectSpread2({}, node, {
+  var nextNode = _objectSpread2(_objectSpread2({}, node), {}, {
     children: newChildren
   });
 
@@ -1649,7 +1427,7 @@ function getTreeFromFlatData(_ref24) {
     var parentKey = getKey(parent);
 
     if (parentKey in childrenToParents) {
-      return _objectSpread2({}, parent, {
+      return _objectSpread2(_objectSpread2({}, parent), {}, {
         children: childrenToParents[parentKey].map(function (child) {
           return trav(child);
         })
@@ -1753,7 +1531,7 @@ function find(_ref25) {
 
     var hasChildren = node.children && typeof node.children !== 'function' && node.children.length > 0; // Examine the current node to see if it is a match
 
-    if (!isPseudoRoot && searchMethod(_objectSpread2({}, extraInfo, {
+    if (!isPseudoRoot && searchMethod(_objectSpread2(_objectSpread2({}, extraInfo), {}, {
       node: node,
       searchQuery: searchQuery
     }))) {
@@ -1815,7 +1593,7 @@ function find(_ref25) {
 
     if (!isPseudoRoot && !newNode.expanded) {
       matches = matches.map(function (match) {
-        return _objectSpread2({}, match, {
+        return _objectSpread2(_objectSpread2({}, match), {}, {
           treeIndex: null
         });
       });
@@ -1824,7 +1602,7 @@ function find(_ref25) {
 
 
     if (isSelfMatch) {
-      matches = [_objectSpread2({}, extraInfo, {
+      matches = [_objectSpread2(_objectSpread2({}, extraInfo), {}, {
         node: newNode
       })].concat(_toConsumableArray(matches));
     }
@@ -1850,15 +1628,73 @@ function find(_ref25) {
   };
 }
 
+// very simple className utility for creating a classname string...
+// Falsy arguments are ignored:
+//
+// const active = true
+// const className = classnames(
+//    "class1",
+//    !active && "class2",
+//    active && "class3"
+// ); // returns -> class1 class3";
+//
+function classnames() {
+  for (var _len = arguments.length, classes = new Array(_len), _key = 0; _key < _len; _key++) {
+    classes[_key] = arguments[_key];
+  }
+
+  // Use Boolean constructor as a filter callback
+  // Allows for loose type truthy/falsey checks
+  // Boolean("") === false;
+  // Boolean(false) === false;
+  // Boolean(undefined) === false;
+  // Boolean(null) === false;
+  // Boolean(0) === false;
+  // Boolean("classname") === true;
+  return classes.filter(Boolean).join(' ');
+}
+
+function _createSuper(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
 var NodeRendererDefault =
 /*#__PURE__*/
 function (_Component) {
   _inherits(NodeRendererDefault, _Component);
 
+  var _super = _createSuper(NodeRendererDefault);
+
   function NodeRendererDefault() {
     _classCallCheck(this, NodeRendererDefault);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(NodeRendererDefault).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
 
   _createClass(NodeRendererDefault, [{
@@ -2037,15 +1873,292 @@ NodeRendererDefault.propTypes = {
   rowDirection: PropTypes.string
 };
 
+var PlaceholderRendererDefault = function PlaceholderRendererDefault(_ref) {
+  var isOver = _ref.isOver,
+      canDrop = _ref.canDrop;
+  return React.createElement("div", {
+    className: classnames('rst__placeholder', canDrop && 'rst__placeholderLandingPad', canDrop && !isOver && 'rst__placeholderCancelPad')
+  });
+};
+
+PlaceholderRendererDefault.defaultProps = {
+  isOver: false,
+  canDrop: false
+};
+PlaceholderRendererDefault.propTypes = {
+  isOver: PropTypes.bool,
+  canDrop: PropTypes.bool
+};
+
+function _createSuper$1(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
+var TreeNode =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(TreeNode, _Component);
+
+  var _super = _createSuper$1(TreeNode);
+
+  function TreeNode() {
+    _classCallCheck(this, TreeNode);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(TreeNode, [{
+    key: "render",
+    value: function render() {
+      var _this$props = this.props,
+          children = _this$props.children,
+          listIndex = _this$props.listIndex,
+          swapFrom = _this$props.swapFrom,
+          swapLength = _this$props.swapLength,
+          swapDepth = _this$props.swapDepth,
+          scaffoldBlockPxWidth = _this$props.scaffoldBlockPxWidth,
+          lowerSiblingCounts = _this$props.lowerSiblingCounts,
+          connectDropTarget = _this$props.connectDropTarget,
+          isOver = _this$props.isOver,
+          draggedNode = _this$props.draggedNode,
+          canDrop = _this$props.canDrop,
+          treeIndex = _this$props.treeIndex,
+          treeId = _this$props.treeId,
+          getPrevRow = _this$props.getPrevRow,
+          node = _this$props.node,
+          path = _this$props.path,
+          rowDirection = _this$props.rowDirection,
+          otherProps = _objectWithoutProperties(_this$props, ["children", "listIndex", "swapFrom", "swapLength", "swapDepth", "scaffoldBlockPxWidth", "lowerSiblingCounts", "connectDropTarget", "isOver", "draggedNode", "canDrop", "treeIndex", "treeId", "getPrevRow", "node", "path", "rowDirection"]);
+
+      var rowDirectionClass = rowDirection === 'rtl' ? 'rst__rtl' : null; // Construct the scaffold representing the structure of the tree
+
+      var scaffoldBlockCount = lowerSiblingCounts.length;
+      var scaffold = [];
+      lowerSiblingCounts.forEach(function (lowerSiblingCount, i) {
+        var lineClass = '';
+
+        if (lowerSiblingCount > 0) {
+          // At this level in the tree, the nodes had sibling nodes further down
+          if (listIndex === 0) {
+            // Top-left corner of the tree
+            // +-----+
+            // |     |
+            // |  +--+
+            // |  |  |
+            // +--+--+
+            lineClass = 'rst__lineHalfHorizontalRight rst__lineHalfVerticalBottom';
+          } else if (i === scaffoldBlockCount - 1) {
+            // Last scaffold block in the row, right before the row content
+            // +--+--+
+            // |  |  |
+            // |  +--+
+            // |  |  |
+            // +--+--+
+            lineClass = 'rst__lineHalfHorizontalRight rst__lineFullVertical';
+          } else {
+            // Simply connecting the line extending down to the next sibling on this level
+            // +--+--+
+            // |  |  |
+            // |  |  |
+            // |  |  |
+            // +--+--+
+            lineClass = 'rst__lineFullVertical';
+          }
+        } else if (listIndex === 0) {
+          // Top-left corner of the tree, but has no siblings
+          // +-----+
+          // |     |
+          // |  +--+
+          // |     |
+          // +-----+
+          lineClass = 'rst__lineHalfHorizontalRight';
+        } else if (i === scaffoldBlockCount - 1) {
+          // The last or only node in this level of the tree
+          // +--+--+
+          // |  |  |
+          // |  +--+
+          // |     |
+          // +-----+
+          lineClass = 'rst__lineHalfVerticalTop rst__lineHalfHorizontalRight';
+        }
+
+        scaffold.push(React.createElement("div", {
+          key: "pre_".concat(1 + i),
+          style: {
+            width: scaffoldBlockPxWidth
+          },
+          className: classnames('rst__lineBlock', lineClass, rowDirectionClass)
+        }));
+
+        if (treeIndex !== listIndex && i === swapDepth) {
+          // This row has been shifted, and is at the depth of
+          // the line pointing to the new destination
+          var highlightLineClass = '';
+
+          if (listIndex === swapFrom + swapLength - 1) {
+            // This block is on the bottom (target) line
+            // This block points at the target block (where the row will go when released)
+            highlightLineClass = 'rst__highlightBottomLeftCorner';
+          } else if (treeIndex === swapFrom) {
+            // This block is on the top (source) line
+            highlightLineClass = 'rst__highlightTopLeftCorner';
+          } else {
+            // This block is between the bottom and top
+            highlightLineClass = 'rst__highlightLineVertical';
+          }
+
+          var _style;
+
+          if (rowDirection === 'rtl') {
+            _style = {
+              width: scaffoldBlockPxWidth,
+              right: scaffoldBlockPxWidth * i
+            };
+          } else {
+            // Default ltr
+            _style = {
+              width: scaffoldBlockPxWidth,
+              left: scaffoldBlockPxWidth * i
+            };
+          }
+
+          scaffold.push(React.createElement("div", {
+            // eslint-disable-next-line react/no-array-index-key
+            key: i,
+            style: _style,
+            className: classnames('rst__absoluteLineBlock', highlightLineClass, rowDirectionClass)
+          }));
+        }
+      });
+      var style;
+
+      if (rowDirection === 'rtl') {
+        style = {
+          right: scaffoldBlockPxWidth * scaffoldBlockCount
+        };
+      } else {
+        // Default ltr
+        style = {
+          left: scaffoldBlockPxWidth * scaffoldBlockCount
+        };
+      }
+
+      return connectDropTarget(React.createElement("div", _extends({}, otherProps, {
+        className: classnames('rst__node', rowDirectionClass)
+      }), scaffold, React.createElement("div", {
+        className: "rst__nodeContent",
+        style: style
+      }, Children.map(children, function (child) {
+        return cloneElement(child, {
+          isOver: isOver,
+          canDrop: canDrop,
+          draggedNode: draggedNode
+        });
+      }))));
+    }
+  }]);
+
+  return TreeNode;
+}(Component);
+
+TreeNode.defaultProps = {
+  swapFrom: null,
+  swapDepth: null,
+  swapLength: null,
+  canDrop: false,
+  draggedNode: null,
+  rowDirection: 'ltr'
+};
+TreeNode.propTypes = {
+  treeIndex: PropTypes.number.isRequired,
+  treeId: PropTypes.string.isRequired,
+  swapFrom: PropTypes.number,
+  swapDepth: PropTypes.number,
+  swapLength: PropTypes.number,
+  scaffoldBlockPxWidth: PropTypes.number.isRequired,
+  lowerSiblingCounts: PropTypes.arrayOf(PropTypes.number).isRequired,
+  listIndex: PropTypes.number.isRequired,
+  children: PropTypes.node.isRequired,
+  // Drop target
+  connectDropTarget: PropTypes.func.isRequired,
+  isOver: PropTypes.bool.isRequired,
+  canDrop: PropTypes.bool,
+  draggedNode: PropTypes.shape({}),
+  // used in dndManager
+  getPrevRow: PropTypes.func.isRequired,
+  node: PropTypes.shape({}).isRequired,
+  path: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])).isRequired,
+  // rtl support
+  rowDirection: PropTypes.string
+};
+
+function _createSuper$2(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
+
 var TreePlaceholder =
 /*#__PURE__*/
 function (_Component) {
   _inherits(TreePlaceholder, _Component);
 
+  var _super = _createSuper$2(TreePlaceholder);
+
   function TreePlaceholder() {
     _classCallCheck(this, TreePlaceholder);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(TreePlaceholder).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
 
   _createClass(TreePlaceholder, [{
@@ -2081,59 +2194,6 @@ TreePlaceholder.propTypes = {
   treeId: PropTypes.string.isRequired,
   drop: PropTypes.func.isRequired
 };
-
-var PlaceholderRendererDefault = function PlaceholderRendererDefault(_ref) {
-  var isOver = _ref.isOver,
-      canDrop = _ref.canDrop;
-  return React.createElement("div", {
-    className: classnames('rst__placeholder', canDrop && 'rst__placeholderLandingPad', canDrop && !isOver && 'rst__placeholderCancelPad')
-  });
-};
-
-PlaceholderRendererDefault.defaultProps = {
-  isOver: false,
-  canDrop: false
-};
-PlaceholderRendererDefault.propTypes = {
-  isOver: PropTypes.bool,
-  canDrop: PropTypes.bool
-};
-
-var memoize = function memoize(f) {
-  var savedArgsArray = [];
-  var savedKeysArray = [];
-  var savedResult = null;
-  return function (args) {
-    var keysArray = Object.keys(args).sort();
-    var argsArray = keysArray.map(function (key) {
-      return args[key];
-    }); // If the arguments for the last insert operation are different than this time,
-    // recalculate the result
-
-    if (argsArray.length !== savedArgsArray.length || argsArray.some(function (arg, index) {
-      return arg !== savedArgsArray[index];
-    }) || keysArray.some(function (key, index) {
-      return key !== savedKeysArray[index];
-    })) {
-      savedArgsArray = argsArray;
-      savedKeysArray = keysArray;
-      savedResult = f(args);
-    }
-
-    return savedResult;
-  };
-};
-
-var memoizedInsertNode = memoize(insertNode);
-var memoizedGetFlatDataFromTree = memoize(getFlatDataFromTree);
-var memoizedGetDescendantCount = memoize(getDescendantCount);
-
-/* eslint-disable import/prefer-default-export */
-function slideRows(rows, fromIndex, toIndex) {
-  var count = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-  var rowsWithoutMoved = [].concat(_toConsumableArray(rows.slice(0, fromIndex)), _toConsumableArray(rows.slice(fromIndex + count)));
-  return [].concat(_toConsumableArray(rowsWithoutMoved.slice(0, toIndex)), _toConsumableArray(rows.slice(fromIndex, fromIndex + count)), _toConsumableArray(rowsWithoutMoved.slice(toIndex)));
-}
 
 function defaultGetNodeKey(_ref) {
   var treeIndex = _ref.treeIndex;
@@ -2185,6 +2245,35 @@ function defaultSearchMethod(_ref2) {
       searchQuery = _ref2.searchQuery;
   return stringSearch('title', searchQuery, node, path, treeIndex) || stringSearch('subtitle', searchQuery, node, path, treeIndex);
 }
+
+var memoize = function memoize(f) {
+  var savedArgsArray = [];
+  var savedKeysArray = [];
+  var savedResult = null;
+  return function (args) {
+    var keysArray = Object.keys(args).sort();
+    var argsArray = keysArray.map(function (key) {
+      return args[key];
+    }); // If the arguments for the last insert operation are different than this time,
+    // recalculate the result
+
+    if (argsArray.length !== savedArgsArray.length || argsArray.some(function (arg, index) {
+      return arg !== savedArgsArray[index];
+    }) || keysArray.some(function (key, index) {
+      return key !== savedKeysArray[index];
+    })) {
+      savedArgsArray = argsArray;
+      savedKeysArray = keysArray;
+      savedResult = f(args);
+    }
+
+    return savedResult;
+  };
+};
+
+var memoizedInsertNode = memoize(insertNode);
+var memoizedGetFlatDataFromTree = memoize(getFlatDataFromTree);
+var memoizedGetDescendantCount = memoize(getDescendantCount);
 
 var DndManager =
 /*#__PURE__*/
@@ -2477,13 +2566,49 @@ function () {
   return DndManager;
 }();
 
+/* eslint-disable import/prefer-default-export */
+function slideRows(rows, fromIndex, toIndex) {
+  var count = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+  var rowsWithoutMoved = [].concat(_toConsumableArray(rows.slice(0, fromIndex)), _toConsumableArray(rows.slice(fromIndex + count)));
+  return [].concat(_toConsumableArray(rowsWithoutMoved.slice(0, toIndex)), _toConsumableArray(rows.slice(fromIndex, fromIndex + count)), _toConsumableArray(rowsWithoutMoved.slice(toIndex)));
+}
+
+function _createSuper$3(Derived) {
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
+}
 var treeIdCounter = 1;
 
 var mergeTheme = function mergeTheme(props) {
-  var merged = _objectSpread2({}, props, {
-    style: _objectSpread2({}, props.theme.style, {}, props.style),
-    innerStyle: _objectSpread2({}, props.theme.innerStyle, {}, props.innerStyle),
-    reactVirtualizedListProps: _objectSpread2({}, props.theme.reactVirtualizedListProps, {}, props.reactVirtualizedListProps)
+  var merged = _objectSpread2(_objectSpread2({}, props), {}, {
+    style: _objectSpread2(_objectSpread2({}, props.theme.style), props.style),
+    innerStyle: _objectSpread2(_objectSpread2({}, props.theme.innerStyle), props.innerStyle),
+    reactVirtualizedListProps: _objectSpread2(_objectSpread2({}, props.theme.reactVirtualizedListProps), props.reactVirtualizedListProps)
   });
 
   var overridableDefaults = {
@@ -2510,12 +2635,14 @@ var ReactSortableTree =
 function (_Component) {
   _inherits(ReactSortableTree, _Component);
 
+  var _super = _createSuper$3(ReactSortableTree);
+
   function ReactSortableTree(props) {
     var _this;
 
     _classCallCheck(this, ReactSortableTree);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ReactSortableTree).call(this, props));
+    _this = _super.call(this, props);
 
     var _mergeTheme = mergeTheme(props),
         dndType = _mergeTheme.dndType,
@@ -2607,12 +2734,16 @@ function (_Component) {
   }, {
     key: "handleDndMonitorChange",
     value: function handleDndMonitorChange() {
+      var _this2 = this;
+
       var monitor = this.props.dragDropManager.getMonitor(); // If the drag ends and the tree is still in a mid-drag state,
       // it means that the drag was canceled or the dragSource dropped
       // elsewhere, and we should reset the state of this tree
 
       if (!monitor.isDragging() && this.state.draggingTreeData) {
-        this.endDrag();
+        setTimeout(function () {
+          _this2.endDrag();
+        });
       }
     }
   }, {
@@ -2626,7 +2757,7 @@ function (_Component) {
         path: path,
         newNode: function newNode(_ref2) {
           var node = _ref2.node;
-          return _objectSpread2({}, node, {
+          return _objectSpread2(_objectSpread2({}, node), {}, {
             expanded: !node.expanded
           });
         },
@@ -2679,14 +2810,14 @@ function (_Component) {
   }, {
     key: "startDrag",
     value: function startDrag(_ref4) {
-      var _this2 = this;
+      var _this3 = this;
 
       var path = _ref4.path;
       this.setState(function (prevState) {
         var _removeNode = removeNode({
           treeData: prevState.instanceProps.treeData,
           path: path,
-          getNodeKey: _this2.props.getNodeKey
+          getNodeKey: _this3.props.getNodeKey
         }),
             draggingTreeData = _removeNode.treeData,
             draggedNode = _removeNode.node,
@@ -2704,7 +2835,7 @@ function (_Component) {
   }, {
     key: "dragHover",
     value: function dragHover(_ref5) {
-      var _this3 = this;
+      var _this4 = this;
 
       var draggedNode = _ref5.node,
           draggedDepth = _ref5.depth,
@@ -2727,10 +2858,10 @@ function (_Component) {
           depth: draggedDepth,
           minimumTreeIndex: draggedMinimumTreeIndex,
           expandParent: true,
-          getNodeKey: _this3.props.getNodeKey
+          getNodeKey: _this4.props.getNodeKey
         });
 
-        var rows = _this3.getRows(addedResult.treeData);
+        var rows = _this4.getRows(addedResult.treeData);
 
         var expandedParentPath = rows[addedResult.treeIndex].path;
         return {
@@ -2742,11 +2873,11 @@ function (_Component) {
             path: expandedParentPath.slice(0, -1),
             newNode: function newNode(_ref7) {
               var node = _ref7.node;
-              return _objectSpread2({}, node, {
+              return _objectSpread2(_objectSpread2({}, node), {}, {
                 expanded: true
               });
             },
-            getNodeKey: _this3.props.getNodeKey
+            getNodeKey: _this4.props.getNodeKey
           }),
           // reset the scroll focus so it doesn't jump back
           // to a search result while dragging
@@ -2758,12 +2889,12 @@ function (_Component) {
   }, {
     key: "endDrag",
     value: function endDrag(dropResult) {
-      var _this4 = this;
+      var _this5 = this;
 
       var instanceProps = this.state.instanceProps;
 
       var resetTree = function resetTree() {
-        return _this4.setState({
+        return _this5.setState({
           draggingTreeData: null,
           draggedNode: null,
           draggedMinimumTreeIndex: null,
@@ -2905,7 +3036,7 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this5 = this;
+      var _this6 = this;
 
       var _mergeTheme3 = mergeTheme(this.props),
           dragDropManager = _mergeTheme3.dragDropManager,
@@ -2982,15 +3113,15 @@ function (_Component) {
               width = _ref11.width;
           return React.createElement(ScrollZoneVirtualList, _extends({}, scrollToInfo, {
             dragDropManager: dragDropManager,
-            verticalStrength: _this5.vStrength,
-            horizontalStrength: _this5.hStrength,
+            verticalStrength: _this6.vStrength,
+            horizontalStrength: _this6.hStrength,
             speed: 30,
             scrollToAlignment: "start",
             className: "rst__virtualScrollOverride",
             width: width,
             onScroll: function onScroll(_ref12) {
               var scrollTop = _ref12.scrollTop;
-              _this5.scrollTop = scrollTop;
+              _this6.scrollTop = scrollTop;
             },
             height: height,
             style: innerStyle,
@@ -3008,7 +3139,7 @@ function (_Component) {
             rowRenderer: function rowRenderer(_ref14) {
               var index = _ref14.index,
                   rowStyle = _ref14.style;
-              return _this5.renderRow(rows[index], {
+              return _this6.renderRow(rows[index], {
                 listIndex: index,
                 style: rowStyle,
                 getPrevRow: function getPrevRow() {
@@ -3025,7 +3156,7 @@ function (_Component) {
       } else {
         // Render list without react-virtualized
         list = rows.map(function (row, index) {
-          return _this5.renderRow(row, {
+          return _this6.renderRow(row, {
             listIndex: index,
             style: {
               height: typeof rowHeight !== 'function' ? rowHeight : rowHeight({
@@ -3082,7 +3213,7 @@ function (_Component) {
 
       instanceProps.searchQuery = nextProps.searchQuery;
       instanceProps.searchFocusOffset = nextProps.searchFocusOffset;
-      newState.instanceProps = instanceProps;
+      newState.instanceProps = _objectSpread2(_objectSpread2({}, instanceProps), newState.instanceProps);
       return newState;
     }
   }, {
@@ -3107,7 +3238,9 @@ function (_Component) {
         };
       }
 
-      var newState = {}; // if onlyExpandSearchedNodes collapse the tree and search
+      var newState = {
+        instanceProps: {}
+      }; // if onlyExpandSearchedNodes collapse the tree and search
 
       var _find = find({
         getNodeKey: getNodeKey,
@@ -3126,7 +3259,7 @@ function (_Component) {
 
 
       if (expand) {
-        newState.ignoreOneTreeUpdate = true; // Prevents infinite loop
+        newState.instanceProps.ignoreOneTreeUpdate = true; // Prevents infinite loop
 
         onChange(expandedTreeData);
       }
@@ -3176,7 +3309,7 @@ function (_Component) {
                     var oldNode = _ref16.node;
                     return (// Only replace the old node if it's the one we set off to find children
                       //  for in the first place
-                      oldNode === node ? _objectSpread2({}, oldNode, {
+                      oldNode === node ? _objectSpread2(_objectSpread2({}, oldNode), {}, {
                         children: childrenArray
                       }) : oldNode
                     );
